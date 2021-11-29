@@ -1,16 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 
 class FlutterDynamicIcon {
   /// The [MethodChannel] used by this plugin
-  static const MethodChannel _channel =
-      const MethodChannel('flutter_dynamic_icon');
+  static const MethodChannel _channel = const MethodChannel('flutter_dynamic_icon');
 
   /// Indicates whether the current platform supports dynamic app icons
   static Future<bool> get supportsAlternateIcons async {
-    final bool supportsAltIcons =
-        await _channel.invokeMethod('mSupportsAlternateIcons');
+    final bool supportsAltIcons = await _channel.invokeMethod('mSupportsAlternateIcons');
     return supportsAltIcons;
   }
 
@@ -18,8 +17,7 @@ class FlutterDynamicIcon {
   ///
   /// Returns `null` if the current icon is the default icon
   static Future<String?> getAlternateIconName() async {
-    final String? altIconName =
-        await _channel.invokeMethod('mGetAlternateIconName');
+    final String? altIconName = await _channel.invokeMethod('mGetAlternateIconName');
     return altIconName;
   }
 
@@ -30,16 +28,19 @@ class FlutterDynamicIcon {
   static Future setAlternateIconName(String? iconName) async {
     await _channel.invokeMethod(
       'mSetAlternateIconName',
-      <String, dynamic>{'iconName': iconName},
+      <String, dynamic>{
+        'iconName': iconName
+      },
     );
   }
 
   /// Fetches the icon batch number
+  /// On Android there is no batch number, so the method will return 0
   ///
   /// The default value of this property is `0` (to show no batch)
   static Future<int> getApplicationIconBadgeNumber() async {
-    final int batchIconNumber =
-        await _channel.invokeMethod('mGetApplicationIconBadgeNumber');
+    if (!Platform.isIOS) return 0; // This functionality is avaible only on iOS
+    final int batchIconNumber = await _channel.invokeMethod('mGetApplicationIconBadgeNumber');
     return batchIconNumber;
   }
 
@@ -49,7 +50,8 @@ class FlutterDynamicIcon {
   ///
   /// Throws a [PlatformException] in case an error
   static Future setApplicationIconBadgeNumber(int batchIconNumber) async {
-    await _channel.invokeMethod('mSetApplicationIconBadgeNumber',
-        <String, Object>{'batchIconNumber': batchIconNumber});
+    await _channel.invokeMethod('mSetApplicationIconBadgeNumber', <String, Object>{
+      'batchIconNumber': batchIconNumber
+    });
   }
 }
